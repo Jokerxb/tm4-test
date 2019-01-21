@@ -1,1 +1,86 @@
-#
+/*
+ * main.c
+ *
+ *  Created on: 2018年1月13日
+ *      Author: weycen
+ */
+
+//
+// This is part of revision 2.1.4.178 of the EK-TM4C123GXL Firmware Package.
+/
+//*****************************************************************************
+点亮tm4的三个小灯 七彩灯
+#include <stdint.h>
+#include <stdbool.h>
+#include "inc/hw_memmap.h"
+#include "driverlib/gpio.h"
+#include "driverlib/sysctl.h"
+
+
+#define DELAY_MS  200   // delay time in ms.
+
+//*****************************************************************************
+//
+// Blink the on-board LED.
+//
+//*****************************************************************************
+void main(void)
+{
+    int temp=0;
+    //
+    // Set the system clock to run at 200/5 = 40MHz from the PLL.
+    //
+    SysCtlClockSet(SYSCTL_SYSDIV_5 | SYSCTL_USE_PLL | SYSCTL_OSC_MAIN |
+                       SYSCTL_XTAL_16MHZ);
+
+    //
+    // Enable the GPIO port that is used for the on-board LED.
+    //
+    SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOF);
+
+    //
+    // Check if the peripheral access is enabled.
+    //
+    while(!SysCtlPeripheralReady(SYSCTL_PERIPH_GPIOF))
+        ;
+
+    //
+    // Enable the GPIO pin for the LED (PF 123).  Set the direction as output, and
+    // enable the GPIO pin for digital function.
+    //
+    GPIOPinTypeGPIOOutput(GPIO_PORTF_BASE, GPIO_PIN_1 | GPIO_PIN_2 |GPIO_PIN_3);
+//    GPIOPinTypeGPIOOutput(GPIO_PORTF_BASE, GPIO_PIN_1);
+//    GPIOPinTypeGPIOOutput(GPIO_PORTF_BASE, GPIO_PIN_2);
+//    GPIOPinTypeGPIOOutput(GPIO_PORTF_BASE, GPIO_PIN_3);
+
+    //
+    // Turn off all led.
+    //
+    GPIOPinWrite(GPIO_PORTF_BASE, GPIO_PIN_1 | GPIO_PIN_2 |GPIO_PIN_3, temp);
+
+
+    //
+    // Loop forever.
+    //
+    while(1)
+    {
+        //
+        // 1.Turn on the LED1,turn off the LED2 and LED3.
+        //
+        GPIOPinWrite(GPIO_PORTF_BASE, GPIO_PIN_1 | GPIO_PIN_2 |GPIO_PIN_3, temp);
+
+        //
+        // Delay for a bit, DELAY_MS ms.
+        //
+//        SysCtlDelay(10*(SysCtlClockGet()/3));
+//        SysCtlDelay(10*(SysCtlClockGet()/3000));
+//        SysCtlDelay(10*(SysCtlClockGet()/3000000));
+
+
+        SysCtlDelay(DELAY_MS*(SysCtlClockGet()/3000));
+        temp+=2;
+        if(temp>16)
+            temp=0;
+    }
+}
+
