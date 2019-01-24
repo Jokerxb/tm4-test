@@ -1,0 +1,62 @@
+#include <stdint.h>
+#include <stdbool.h>
+#include "driverlib/gpio.h"
+#include "driverlib/pin_map.h"
+#include "driverlib/rom_map.h"
+#include "driverlib/sysctl.h"
+#include "driverlib/interrupt.h"
+#include "inc/hw_memmap.h"
+#include "inc/hw_ints.h"
+#include "inc/hw_types.h"
+#include "inc/hw_gpio.h"
+#include "utils/uartstdio.h"
+#include "libraries/delay/delay.h"
+#include "libraries/LED/led.h"
+#include "libraries/KEY/key.h"
+#include "libraries/UART/uart.h"
+#include "libraries/PWM/pwm.h"
+
+
+
+extern int flag;`
+extern long frequency;
+extern int light;
+
+
+
+void main(void)
+
+{
+    uint32_t ui32PwmFre  = 20;    // pwm frequency,unit in hz.
+    uint32_t ui32PwmDuty = 0 ;
+    int frequency=1000,duty=0;
+    SysCtlClockSet(SYSCTL_SYSDIV_5 | SYSCTL_USE_PLL | SYSCTL_OSC_MAIN |SYSCTL_XTAL_16MHZ);
+   // RGB_Init();
+    Led_Init();
+    UART_Int_Init(9600);
+    key_Int_Init();
+    //PWM_Init(20,0);
+    UARTprintf("frequency:%d Hz,duty:%d%%\n",ui32PwmFre,ui32PwmDuty);
+    while(1)
+    {
+        if(flag)
+        {
+            if(flag&1)
+            {
+                frequency+=1000;
+                frequency=frequency>5000?20:frequency;
+               // if(frequency==11)frequency=1;
+                UARTprintf("frequency:%d Hz",frequency);
+            }
+            if(flag&2)
+            {
+                duty+=10;
+                duty=duty>100?0:duty;
+               // if(colour==7)colour=0;
+                UARTprintf("duty:%d Hz",duty);
+            }
+            flag=0;
+        }
+        PWM_Init(frequency,duty);
+    }
+}
